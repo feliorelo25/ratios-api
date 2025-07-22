@@ -55,4 +55,4 @@ def get_ratios(ticker: str):
         "peChange": pe_change,
         "expectedReturn": expected_return
     }
-
+ 
