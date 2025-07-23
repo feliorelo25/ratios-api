@@ -18,7 +18,7 @@ BASE_URL = "https://financialmodelingprep.com/api/v3"
 @app.get("/ratios/{ticker}")
 def get_ratios(ticker: str):
     try:
-        url = f"{BASE_URL}/ratios-ttm/{ticker.upper()}?apikey={API_KEY}"
+        url = f"{BASE_URL}/key-metrics-ttm/{ticker.upper()}?apikey={API_KEY}"
         res = requests.get(url)
         data = res.json()
 
@@ -27,24 +27,24 @@ def get_ratios(ticker: str):
 
         d = data[0]
 
-        # Datos del modelo Grinold-Kroner (asumimos todos en TTM)
-        dividend_yield = d.get("dividendYielTTM") or 0
-        buyback_yield = d.get("buyBackYieldTTM") or 0  # si está disponible
-        eps_growth = d.get("epsGrowthTTM") or 0
-        pe_change = 0  # no lo reporta la API, lo mantenemos manual
+        # Extraer ratios clave
+        pe_ratio = d.get("peRatioTTM")
+        pb_ratio = d.get("pbRatioTTM")
+        ev_ebitda = d.get("enterpriseValueOverEBITDATTM")
+        ev_sales = d.get("evToSalesTTM")
+        dividend_yield = d.get("dividendYieldTTM") or 0
+        buyback_yield = 0  # no disponible
+        eps_growth = 0     # no disponible
+        pe_change = 0      # no disponible
 
-        expected_return = (
-            dividend_yield - (-buyback_yield)
-            + eps_growth + pe_change
-        )
+        expected_return = dividend_yield - (-buyback_yield) + eps_growth + pe_change
 
         return {
-            "ticker": d.get("symbol"),
-            "date": d.get("date"),
-            "peRatio": d.get("peRatioTTM"),
-            "pbRatio": d.get("pbRatioTTM"),
-            "evToEbitda": d.get("evToEbitdaTTM"),
-            "evToSales": d.get("evToSalesTTM"),
+            "ticker": ticker.upper(),
+            "peRatio": pe_ratio,
+            "pbRatio": pb_ratio,
+            "evToEbitda": ev_ebitda,
+            "evToSales": ev_sales,
             "dividendYield": dividend_yield,
             "buybackYield": buyback_yield,
             "epsGrowth": eps_growth,
